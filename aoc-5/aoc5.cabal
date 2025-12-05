@@ -1,0 +1,19 @@
+cabal-version:   3.14
+name:            aoc5
+version:         0.1.0.0
+license:         NONE
+author:          Pancakey8
+maintainer:      pancake-08@proton.me
+build-type:      Simple
+extra-doc-files: CHANGELOG.md
+
+common warnings
+    ghc-options: -Wall
+
+executable aoc5
+    import:           warnings
+    main-is:          Main.hs
+    build-depends:    base ^>=4.21.0.0,
+                      containers
+    hs-source-dirs:   app
+    default-language: GHC2024
