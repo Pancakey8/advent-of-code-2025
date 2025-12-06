@@ -1,4 +1,6 @@
 module Main (main) where
+import Data.Char (isSpace)
+import Data.List (transpose)
 
 -- part 1 
 readGrid :: IO [[String]]
@@ -17,42 +19,21 @@ grandSum xs = sum $ map (columnOp . (\n -> map (!!n) xs)) [0..length (head xs) -
 part1 :: IO ()
 part1 = print . grandSum =<< readGrid
 
--- part 2
-fileLines :: IO [String]
-fileLines = lines <$> readFile "puzzle.txt"
-
-colSizes :: [String] -> [Int]
-colSizes ls = map (maximum . (\n -> map (!!n) lengths)) [0..length (head lengths) - 1]
+-- part 2, transpose
+cols :: [String] -> [[String]]
+cols [] = []
+cols xs = takeWhile (not . isBlank) xs : cols (tailSafe $ dropWhile (not . isBlank) xs)
   where
-    lengths = map (map length . words) ls
-
-cols :: [String] -> [Int] -> [[String]]
-cols ls [] = []
-cols ls (n:ns) = col : cols rest ns
-  where
-    col = map (take n) ls
-    rest = map (drop (n+1)) ls
-
-operateCol :: [String] -> Integer
-operateCol col =
-  case op of
-    '*' -> product numbers
-    '+' -> sum numbers
-    otherwise -> error "Invalid operation"
-  where
-    table = init col
-    getNums :: [String] -> [Integer]
-    getNums xs
-      | null (head xs) = []
-      | otherwise = read (filter (/=' ') $ map last xs) : getNums (map init xs)
-    numbers = getNums table
-    op = head $ last col
+    tailSafe [] = []
+    tailSafe xs = tail xs
+    isBlank = all isSpace
 
 part2 :: IO ()
 part2 = do
-  ls <- fileLines
-  let cs = colSizes ls
-  print $ sum $ map operateCol $ cols ls cs
+  ls <- lines <$> readFile "puzzle.txt"
+  let ops = map (: []) $ words $ last ls
+  let cs = cols $ transpose $ init ls
+  print $ sum $ map columnOp $ zipWith (++) cs ops
 
 main :: IO ()
 main = part1
